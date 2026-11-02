@@ -1,48 +1,329 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comfortable pavilion — Кодекс v2.0</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css">
-</head>
-<body>
-  <!-- Background Effect -->
-  <canvas id="neural-net-canvas"></canvas>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Comfortable pavilion — Кодекс v2.5</title>
+<style>
+:root{--g:linear-gradient(110deg,#fff3b0,#f5c542 28%,#c8921a 55%,#ffe27a 80%,#b8860b);--gold:#f5c542;--cyan:#00f0ff;--dim:#9a8f6d;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color-scheme:dark}
+*{box-sizing:border-box;margin:0}
+html{background:#050508;scroll-behavior:smooth;scroll-padding-top:104px}
+body{color:#ece6d2;font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden}
+/* ЗАМЕНА SVG НА CANVAS */
+#neural-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;opacity:.35;pointer-events:none}
+header{position:relative;min-height:94vh;display:grid;place-items:center;text-align:center;padding:50px 16px 70px}
+.hc{position:relative;z-index:2}
+.pr{display:inline-block;font:.9rem var(--mono);color:var(--dim);margin-bottom:20px;padding:5px 14px;border:1px solid #f5c54222;border-radius:99px;background:#0009;backdrop-filter:blur(4px)}
+.pr b{color:var(--gold);font-weight:400}
+.pr span{display:inline-block;vertical-align:bottom;overflow:hidden;white-space:nowrap;width:0;color:#e4dcc0;border-right:2px solid var(--gold);animation:ty 1.6s steps(13) .5s forwards,bl .8s step-end infinite}
+@keyframes ty{to{width:13ch}}@keyframes bl{50%{border-color:transparent}}@keyframes bk{50%{opacity:0}}
+h1{font-size:clamp(2.5rem,10vw,5.8rem);line-height:1.03;font-weight:800;letter-spacing:-.02em;background:var(--g);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 26px #f5c54238)}
+.k{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:16px;font:600 clamp(1.1rem,4vw,1.6rem) var(--mono);letter-spacing:.3em;color:var(--gold)}
+.k i{height:1px;width:min(16vw,110px);background:linear-gradient(90deg,transparent,var(--gold))}.k i:last-child{rotate:180deg}
+.st{display:flex;gap:14px;justify-content:center;margin-top:34px}
+.st div{padding:10px 24px;border:1px solid #f5c54233;border-radius:12px;background:#ffffff08;backdrop-filter:blur(6px)}
+.st b{display:block;font:700 1.9rem var(--mono);color:var(--gold)}
+.st span{font-size:.8rem;color:var(--dim)}
+.dn{position:absolute;bottom:22px;color:var(--gold);text-decoration:none;font-size:1.7rem;animation:bn 1.6s ease-in-out infinite;z-index:2}
+@keyframes bn{50%{translate:0 9px}}
+/* НАВИГАЦИЯ И ПОИСК */
+#bar{position:sticky;top:0;z-index:5;background:#0a0a0ed0;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid #f5c54222;padding:10px 14px 9px}
+.in{display:flex;gap:10px;align-items:center;max-width:860px;margin:auto}
+label{flex:1;display:flex;align-items:center;gap:8px;border:1px solid #f5c54233;border-radius:10px;padding:6px 12px;background:#000;transition:.25s}
+label:focus-within{border-color:var(--cyan);box-shadow:0 0 22px #00f0ff33} /* CYAN FOCUS */
+label span{color:var(--gold);font:.85rem var(--mono)}label span:after{content:" ▸"}
+#q{flex:1;min-width:0;background:none;border:0;outline:0;color:#fff;font:.9rem var(--mono)}
+#k{font:normal .78rem var(--mono);color:var(--dim)}
+/* AI HINT BOX */
+.ai-hint{display:none;max-width:860px;margin:8px auto 0;padding:8px 12px;background:rgba(0,240,255,0.1);border-left:2px solid var(--cyan);font-family:var(--mono);font-size:.8rem;color:#aaffee;animation:fadeIn .3s}
+.ai-hint.show{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+#ch{display:flex;gap:6px;overflow-x:auto;max-width:860px;margin:8px auto 0;scrollbar-width:none;padding-bottom:2px}
+#ch a{flex:none;font:.8rem var(--mono);padding:3px 11px;border-radius:99px;border:1px solid #f5c54222;color:var(--dim);text-decoration:none;transition:.25s}
+#ch a.on{color:#000;background:var(--g);border-color:transparent;box-shadow:0 0 16px #f5c54255}
+#pg{position:absolute;left:0;bottom:-1px;height:2px;width:100%;background:var(--g);transform-origin:0 0;transform:scaleX(0)}
+main{max-width:860px;margin:0 auto;padding:20px 14px 40px}
+section{margin-top:56px}
+h3{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+h3 em{font:800 clamp(3rem,13vw,5.5rem)/1 system-ui;font-style:normal;color:transparent;-webkit-text-stroke:1.5px var(--gold);text-shadow:0 0 30px #f5c54233}
+h3 div{display:flex;flex-direction:column;min-width:0}
+h3 small{font:.85rem var(--mono);color:var(--dim)}
+h3 b{font-size:clamp(1.05rem,3.8vw,1.6rem);font-weight:700;letter-spacing:.04em}
+h3:after{content:"";flex:1;min-width:20px;height:1px;background:linear-gradient(90deg,var(--gold),transparent);transform-origin:0 0;scale:0 1;transition:scale 1.2s .3s}
+h3.v:after{scale:1}
+.r{opacity:0;translate:0 28px;transition:opacity .7s,translate .7s cubic-bezier(.2,.8,.2,1)}
+.r.v{opacity:1;translate:none}
+.c{position:relative;margin:12px 0;padding:16px 18px 16px 80px;min-height:60px;border-radius:14px;background:linear-gradient(145deg,#16140c,#0b0b0e);border:1px solid #f5c54222;overflow:hidden;transform:perspective(800px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:all .3s ease}
+.c:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--g);opacity:.8}
+.c:hover{border-color:#f5c54299;box-shadow:0 12px 40px -14px #f5c54266}
+.l1{margin-left:24px}.l2{margin-left:48px}.l1:before,.l2:before{opacity:.4}
+.n{position:absolute;left:12px;top:13px;width:58px;text-align:center;font-family:var(--mono)}
+.n small{display:block;font-size:.72rem;color:var(--dim)}
+.n b{font-size:1.3rem}.n b.x{font-size:.95rem}
+.c p{overflow-wrap:anywhere;color:#e9e3cf}
+.c p.e{font:italic .95rem var(--mono);color:var(--dim)}
+mark{font:600 .8em var(--mono);padding:1px 7px;border-radius:6px;background:#f5c54222;color:#ffd866;border:1px solid #f5c54255}
+mark.ban{background:#ff4d4d22;color:#ff8a8a;border-color:#ff4d4d66}mark.mu{background:#7aa8ff1f;color:#a9c4ff;border-color:#7aa8ff55}
+footer{text-align:center;padding:50px 20px 80px;color:var(--dim);font:.88rem/1.8 var(--mono)}
+footer i{color:var(--gold);font-style:normal;animation:bk 1s step-end infinite}
+@media(max-width:560px){.c{padding:14px 14px 14px 68px}.n{left:6px}.l1{margin-left:12px}.l2{margin-left:24px}.st div{padding:8px 16px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.r{opacity:1;translate:none}.pr span{width:auto;border:0}}
+</style></head><body>
+<!-- NEURAL NETWORK BACKGROUND -->
+<canvas id="neural-bg"></canvas>
+<header>
+<div class="hc">
+<div class="pr"><b>guest@pavilion:~$</b> <span>init_system.sh</span></div>
+<h1>Comfortable pavilion</h1>
+<h2 class="k"><i></i>Кодекс<i></i></h2>
+<div class="st"><div><b id="s1">0</b><span>частей</span></div><div><b id="s2">0</b><span>статей</span></div></div>
+</div>
+<a class="dn" href="#codex">⌄</a>
+</header>
+<nav id="bar"><div class="in"><label><span>grep</span><input id="q" placeholder="описание нарушения или поиск..." autocomplete="off"></label><em id="k"></em></div><div id="ai-res" class="ai-hint"></div><div id="ch"></div><div id="pg"></div></nav>
+<main id="codex"></main>
+<footer>// EOF · Comfortable pavilion<br>$ exit 0 <i>█</i></footer>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const D=`#I|ОБЩИЕ ПОЛОЖЕНИЯ
+1|Настоящий Кодекс регулирует отношения внутри чата. Кодекс обязателен для всех участников, включая администрацию и Создателя.
+2|Основные принципы: равенство перед Кодексом; наказание за деяние, а не за личность; свобода сделок, если иное не установлено; защита слабой стороны; неотвратимость правовой оценки.
+3|Кодекс вступает в силу с момента публикации. Обратная сила не применяется. Незнание Кодекса не освобождает от ответственности.
+#II|УЧАСТНИКИ И РОЛИ
+4|Участник — лицо, имеющее доступ к чату.
+5|иерархия нацелена на карьерный рост и спад, любой может пойти на повышение или понижение. А также каждый участник может подать заявку на вступление в состав админа, для этого необходимо в свободной форме написать владельцу в ЛС с объяснением своих «-» и «+» как админа. Какую роль в иерархии займёт вы решают ваши поступки и владелец.
+6|Адвокат вправе оказывать платные услуги и сам устанавливает цену за помощь на суде. Один адвокат может закрыть максимум 2 сделки за 2 дня.
+7|Судья рассматривает споры и не вправе участвовать в деле при заинтересованности. Или имеет право отказаться в заинтересованности ради участия, при этом при подозрении в превышение полномочий, судью в праве судить или наказать , если дело слишком явное
+8|репортёр и журналист: репортёры являются ведущими личностями имеющие права говорить любую информацию в «подслушано Comfortable pavilion» без наказания, но все также ровны перед законом вне подслушано и если выяснится что он распускает слухи и является заинтересованым лицом в порче репутации.
+8.1|журналист , человек сотрудничающий с репортёрами для выяснения обстоятельств и имеющий права расследовать деяния и копать под справедливость. При обмане, несправедливом расследовании или заинтересованности пустить пыль в глаза может попасть под суд или получить наказание.
+8.2|В «подслушано» кидать может любой человек, Репортёр обязуется скрывать имя человека который попросил о неразглашении, при выдачи человека который просил о неразглашении, репортёр может заявить в суд , где после суда репортёр получит наказание , которое решит суд.
+9|Если информатчик вне чата и уже получил наказание он имеет право выдать доверенность на судимости:
+9.1|Доверенный на судимость человек подающий в суд и представляющий официальные интересы наказуемого.
+9.1.1|доверенный обязан предоставить скрины с от наказуемого в которой четко видно и понятны интересы и просьба о доверенности наказуемого к доверенному
+#III|ПРАВА
+10|Каждый участник вправе: выражать мнение; защищать интересы; подавать жалобы; обжаловать наказания; участвовать в сделках; обращаться к адвокату; обращаться в суд.
+11|Никто не может быть наказан без объяснения причины.
+11.1|участники и админы , обязаны уведомлять владельцс о любом происшествии
+12|Решение владельца можно обжаловать , контекстуально, к примеру , чтобы вернуть участника с средним или лёгким тяжестью наказания достаточно 5 голосов в петиции. А с тежолым и выше , 15.
+12.1|Владелец имеет право отказаться принимать участника во флуд если тот ведёт себя неподобающие или неосотвествует другим нормам
+#IV|ВНУТРЕННЯЯ ПОЛИТИКА
+13|Валюты чата: чайные листья
+14|1 жалоба и владельц обязан проверить человека на которого поступила жалоба , 2 жалобу и владелец обязан принять меры в сторону человека на которого поступили жалобы.¶3 жалобы и человек получает бан
+15|все жалобы не обязаны, (но желательно обосновать ) быть обоснованы, но если при проверке выйснется что жб было клеветой люди подающие жалобы получат варн или бан, в зависимости от сложности ситуации.
+16|кодекс менять в праве исключительно владелец , но участники могут поставить закон на рассмотрение если в петиции будет 10 голосов и принять закон обязательно если 30 голосов
+17|Если петиция набрала 30 голосов , закон будет взят в обработку но этот закон не должен нарушать порядок чата или осуществлять дискомфорт участникам. Также принятый закон не должен быть взят с деструктивными последствиями.
+18|владелец в праве выдать наказание человеку поведение которого не соответствует нормам или предполагает собой несение диструктива
+19|Смена роли возможна, так же можно брать дополнительные роли , за плату в 3000 чайных листьев за 1 доп роль.
+20|Покупка звёзд: 500 чайных = 25 звёзд; 1000 = 50; 2000 = 100.
+21|Премиум: для участников 25000 чайных за 6 мес.
+22|
+23|Защита от чистки: 100 чайных листьев, действует только при недоборе нормы
+#VI|ДУЭЛЬ
+24|Дуэль — сделка с риском между двумя участниками.
+25|Ставка 500-10000 чайных, строго одинаковая у обоих. Мут проигравшему 1-120 минут.
+26|Дуэль можно отклонить.
+27|Механика: участники договариваются; бот кидает на страницу дуэли; кнопки Прицелиться и Выстрел; прицел — точность высокая, но оппонент может успеть; выстрел — точность низкая.
+28|Проигравший теряет ставку, победитель получает её.
+#VII|СУД И АДМИНИСТРАЦИЯ
+29|Администрация обязана помогать участникам влиться. Быть справедливыми и соблюдать идею равноправия, всегда сообщать владельцу при самовольных решениях или любых происшествий.
+30|Суд планируется заранее, и сообщается и Истцу и ответчику до начала проведение.
+31|При суде присяжные ( участники ) обязаны молчать , или говорить только при разрешении судьи; искать адвокатов имеет право исключительно сам ответчик или истец , суд не обязан предоставлять адвоката без личной просьбы ответчика , истца или доверенного
+32|Администрация не вправе наказывать задним числом.
+33|Суд — независимый орган, имеющий право судить даже владельца но изменения в нем зависят от питиций или владельца и кодекса
+34|слив чужой информации и переписок во флуд приветствуется только в том случае если он является добросовестным и заслуженным без оскорблений и любых диструктивных фраз.
+35|Линчивание форма суда при котором ведётся созыв участников и объяснение ситуации в участники сами решают что делать с предпологаемо виновным.
+36|только губернатор, и выше включая Владелеца имеют право прибегать к Линчиванию , но оно не может быть окончено без увидомление о нем владельцаю
+37|репост чужого слива без прямого знания контекста и ситуации — бан
+38|Любые провокации несущие диструктивные последствия пресекаются варн , второй раз бан.
+39|Участник вправе подать аргументированную апелляцию.
+#X|НАРУШЕНИЯ
+40|Оскорбление — варн.
+41|Травля: организаторы — варн/бан, остальные — варн.
+42|Порнография — варн, повторно — варн/бан.
+42.1|порнография , и сексуализация в тексте — варн/бан
+43|Шок-контент — бан.
+43.1|Шок контент в тексте — варн/бан
+44|Пропаганда наркотиков, насилия, суицида — варн/бан.
+45|Спам-стикеры — мут/варн.
+46|Фишинг — бан.
+47|Реклама без согласования — варн, повторно — бан.
+48|Слив личных данных — бан. ( За исключением случаев когда это можно см. Выше )
+49|приобретение услуг у криминалов тоже карается ( суд, бан, Линчивание)
+50|Накрутка жалоб и питиций — бан.
+51|шантаж — бан
+#XI|ОТВЕТСТВЕННОСТЬ
+52|ОРКП — отдел расследования комфортного павильона. Занимаются поиском и наказанием преступников , включая тех кто пользуется СМИ ( подслушано) в своих коростных и диструктивных целях. Не имеют права наказывать но могут передавать в суд и подвергать все огласке. Каждый участник расследование которое закрыли получает награду в звёздах / или листьях
+52.1|ОРКП докладывает о каждом заявлении в свой чат, ход расследования тоже обсуждается там как и аргументация , за исключением тех случаев в которых нарушитель может быть один из ОРКП.
+52.2|ОРКП обязана брать заявление у любых людей, будь то админы , влд или участник.
+52.3|Для ОРКП не имеет дело кто нарушитель, имеют право копать даже под владельца.
+52.4|ОРКП обязаны обосновывать свои действия где бы то ни было ,
+53|Журналисты имеют права копать под ОРКП
+#XII|ТОЛКОВАНИЕ И КОЛЛИЗИИ
+54|При противоречиях применяется норма, более благоприятная для участников.
+55|нелегалы — люди, которые занимаются очернением репутации через СМИ , выгоном участников, накруткой питиций и любой нелегальной деятельностью за звёзды или листья имеют место быть, но если попадутся понесут полную ответственность.
+55.1|Власть , не абсолютна , она может быть свергнута.
+56|
+#XIII|ЗАКЛЮЧИТЕЛЬНЫЕ ПОЛОЖЕНИЯ
+57|Исключительное право управления: Если Владелец или Совладелец чата фиксируют явное уклонение от правил или деструктивное поведение, фактически не нарушающее буквы Кодекса напрямую, они оставляют за собой право выдать наказание или поставить под трибунал. Данная мера применяется в редких и исключительных случаях для поддержания порядка.
+58|Кодекс обязателен для всех.
+59|Изменения вносятся только с согласия Создателя.
+60|Любое изменение подлежит обязательной публикации.
+61|попытка сброса власти , причитается сразу
+62|Админы/участники имеют полное право создавать тематические каналы и рекламировать их если только каналы и чаты для людей из флуда.
+62.1|Если ваш канал / чат будет иметь участников не имеющих отношения к флуду , или прикрываясь КП будете делать что либо сомнительное или создаваться в деструктивных целях вы получите бан.
+63|Любой член иерархии равен перед кодексом и ничто кроме кодекса спасти от наказание нарушения кодекса не сможет.
+64|Дискриминация, мизогиния , запрещена. радикальный фименизм в меру должен быть.
+65|все страны, пол, интересы , труд, религия, национальность, философия — равны и должны уважаться , но и высказывание своего недовольства возможно, без явной ненавести
+66|политика, религия, национальность — подлежит обсуждению, но без угнетение
+67|нарциссические наклонности тоже нарушение — варн / бан
+68|Решения суда, админов , влд и кого бы то ни было также могут быть обсуждаемыми но без ненависти и прочего.
+69|в стрессовых или конфликтных ситуациях при нарушении кодекса субъектом X, субъект Y считается невиновным если все что он делал это бурно выражал эмоции. Субъект Y имеет полное право отстаивать свои права , но обязан тегнуть влд ( или написать ему в ЛС ) и не нарушать правила кодекса за которые может получить наказание
+70|Субъект Y не будет спасен если его действия выходят за рамки обычных отстаиваний границ или эмоций.`;
+/* СБОРКА ДОКУМЕНТА */
+const mk=s=>s.replace(/(^|[^а-яё])(варн|бан|мут)(?![а-яё])/gi,(m,p,w)=>`${p}<mark class="${/^б/i.test(w)?'ban':/^м/i.test(w)?'mu':'wn'}">${w}</mark>`);
+let h='',chips='',np=0,n=0;
+D.split('\n').forEach(l=>{
+  const [a,...r]=l.split('|'),t=r.join('|');
+  if(a[0]=='#'){
+    const id=a.slice(1);if(np)h+='</section>';np++;
+    h+=`<section id="p${id}"><h3 class="r"><em>${id}</em><div><small>Часть ${id}</small><b>${t}</b></div></h3>`;
+    chips+=`<a href="#p${id}">${id}</a>`;return}
+  n++;
+  h+=`<article class="c r l${a.split('.').length-1}" data-num="${a}"><div class="n"><small>Ст.</small><b${a.length>3?' class="x':''}>${a}</b></div>${t?`<p>${mk(t).replace(/¶/g,'<br>')}</p>`:'<p class="e">// пусто</p>'}</article>`});
+$('#codex').innerHTML=h+'</section>';$('#ch').innerHTML=chips;
 
-  <!-- Hero Section -->
-  <header class="hero">
-    <div class="version-badge">SYSTEM ONLINE</div>
-    <h1 class="hero-title">Loading...</h1>
-    <p class="hero-subtitle">Загрузка протоколов...</p>
+/* СЧЁТЧИКИ */
+const up=(el,to)=>{let s;const f=t=>{s??=t;const p=Math.min((t-s)/1400,1);el.textContent=Math.round(to*(1-(1-p)**3));p<1&&requestAnimationFrame(f)};requestAnimationFrame(f)};
+up($('#s1'),np);up($('#s2'),n);
+
+/* SCROLL REVEAL & NAVIGATION */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('v');io.unobserve(e.target)}}),{threshold:.1});
+$$('.r').forEach(e=>io.observe(e));
+const CH=$('#ch'),so=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){
+  $$('#ch a').forEach(a=>a.classList.toggle('on',a.hash=='#'+e.target.id));
+  const a=$('#ch .on');a&&CH.scrollTo({left:a.offsetLeft-CH.clientWidth/2+a.offsetWidth/2,behavior:'smooth'})}}),{rootMargin:'-45% 0px -50% 0px'});
+$$('section').forEach(s=>so.observe(s));
+addEventListener('scroll',()=>{$('#pg').style.transform=`scaleX(${scrollY/(document.documentElement.scrollHeight-innerHeight)||0})`},{passive:true});
+
+/* УМНЫЙ ПОИСК (AI HEURISTICS) */
+// Словарь триггеров. Ключ - категория, значение - список корней слов
+const TRIGGERS = {
+  insult: ["оскорб","хамств","груб","мат","ругань","обзыв","послал","еблан","козел","говнюк","сюаскорб"], // добавил твои примеры
+  bullying: ["травл","булл","гонят","задир","издев","травли"],
+  porn: ["порн","секс","ню","гол","эрот","возбуд","похаб"],
+  spam: ["спам","реклам","бот","накрут","массов"],
+  phish: ["фишинг","кража акк","парол","доступ","взлом"],
+  dox: ["слив дан","дедокс","личные дан","адрес","телефон","фото пасп"],
+  drug: ["наркот","трава","спайс","синтет","доза","употреб"],
+  threat: ["угроз","шантаж","убью","найду","разберусь"]
+};
+
+// Карта категорий на номера статей
+const MAP_TO_ARTICLES = {
+  insult: ['40'],
+  bullying: ['41'],
+  porn: ['42','42.1'],
+  spam: ['45','47'],
+  phish: ['46'],
+  dox: ['48'],
+  drug: ['44'],
+  threat: ['51']
+};
+
+const Q=$('#q'),K=$('#k'),AIR=$('#ai-res');
+Q.oninput=()=>{
+  const raw=Q.value.trim();
+  const low=raw.toLowerCase();
+  
+  // 1. Обычный фильтр видимости
+  let c=0;
+  $$('.c').forEach(e=>{
+    const m=!low||e.textContent.toLowerCase().includes(low);
+    e.hidden=!m;c+=m;
+  });
+  $$('section').forEach(s=>s.hidden=!s.querySelector('.c:not([hidden])'));
+  K.textContent=low?c+'/'+n:'';
+
+  // 2. AI Анализ (если длина больше 5 символов)
+  AIR.classList.remove('show');
+  if(low.length > 5) {
+    let foundCats = [];
+    for(let cat in TRIGGERS) {
+      if(TRIGGERS[cat].some(word => low.includes(word))) foundCats.push(cat);
+    }
     
-    <div class="search-container">
-      <div class="search-input-wrapper">
-        <span class="search-icon">⌕</span>
-        <input type="text" id="search-query" placeholder="Поиск по кодексу или описание нарушения..." autocomplete="off">
-      </div>
-      <span class="ai-hint"></span>
-    </div>
-  </header>
+    if(foundCats.length > 0) {
+      let artsSet = new Set();
+      foundCats.forEach(c => (MAP_TO_ARTICLES[c]||[]).forEach(a => artsSet.add(a)));
+      
+      AIR.innerHTML = `<b style="color:var(--cyan)">🤖 СИСТЕМНЫЙ АНАЛИЗ:</b> Обнаружено вероятное нарушение.<br>
+                       Категория: <u>${foundCats.join(', ')}</u>.<br>
+                       Рекомендуемые статьи: <b style="color:var(--gold)">${Array.from(artsSet).join(', ')}</b>.`;
+      AIR.classList.add('show');
+      
+      // Автоскролл к первой найденной статье, если она есть
+      const firstArtNum = Array.from(artsSet)[0];
+      const targetCard = document.querySelector(`.c[data-num="${firstArtNum}"]`);
+      if(targetCard) {
+         targetCard.scrollIntoView({behavior:'smooth', block:'center'});
+         targetCard.style.boxShadow = "0 0 30px rgba(0,240,255,0.6)"; // Подсветка цианом
+         setTimeout(()=>targetCard.style.boxShadow="", 2000);
+      }
+    }
+  }
+};
+addEventListener('keydown',e=>{if(e.key=='/'&&document.activeElement!=Q){e.preventDefault();Q.focus()}});
 
-  <!-- Navigation -->
-  <nav class="nav-bar" style="position: sticky; top: 0; z-index: 100; background: rgba(5,5,5,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05);">
-    <div class="nav-chips container" style="max-width: 900px; margin: 0 auto; padding: 10px 1.5rem;"></div>
-  </nav>
+/* TILT EFFECT (Карточки реагируют на мышь) */
+if(matchMedia('(hover:hover)').matches){
+  const M=$('#codex');
+  M.addEventListener('pointermove',e=>{const c=e.target.closest('.c');if(!c)return;const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+    c.style.setProperty('--x',x+'px');c.style.setProperty('--y',y+'px');c.style.setProperty('--ry',(x/r.width-.5)*3+'deg');c.style.setProperty('--rx',(.5-y/r.height)*3+'deg')});
+  M.addEventListener('mouseout',e=>{const c=e.target.closest('.c');if(c&&!c.contains(e.relatedTarget)){c.style.setProperty('--rx','0deg');c.style.setProperty('--ry','0deg')}})}
 
-  <!-- Main Content -->
-  <main>
-    <!-- Rendered via JS -->
-  </main>
+/* NEURAL NETWORK BACKGROUND (Canvas Animation) */
+const cvs=document.getElementById('neural-bg');
+const ctx=cvs.getContext('2d');
+let W,H,NODES=[];
+function resize(){W=cvs.width=innerWidth;H=cvs.height=innerHeight;}
+window.addEventListener('resize',resize);resize();
 
-  <footer>
-    <p>&copy; 2026 Comfortable Pavilion. All rights reserved.</p>
-    <p>System Status: <span style="color:var(--secondary-cyan)">OPERATIONAL</span></p>
-  </footer>
+class Node {
+  constructor() {
+    this.reset();
+  }
+  reset() {
+    this.x=Math.random()*W;this.y=Math.random()*H;
+    this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;
+    this.size=Math.random()*2+1;
+  }
+  update() {
+    this.x+=this.vx;this.y+=this.vy;
+    if(this.x<0||this.x>W)this.vx*=-1;
+    if(this.y<0||this.y>H)this.vy*=-1;
+  }
+  draw() {
+    ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fillStyle='#f5c542'; // Gold nodes
+    ctx.fill();
+  }
+}
 
-  <script src="./script.js"></script>
-</body>
-</html>
+for(let i=0;i<80;i++) NODES.push(new Node());
+
+function loop() {
+  ctx.clearRect(0,0,W,H);
+  // Draw connections
+  ctx.strokeStyle='rgba(245, 197, 66, 0.15)';
+  ctx.lineWidth=1;
+  for(let i=0;i<NODES.length;i++){
+    NODES[i].update();NODES[i].draw();
+    for(let j=i+1;j<NODES.length;j++){
+      const dx=NODES[i].x-NODES[j].x;const dy=NODES[i].y-NODES[j].y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<150){
+        ctx.beginPath();ctx.moveTo(NODES[i].x,NODES[i].y);ctx.lineTo(NODES[j].x,NODES[j].y);ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(loop);
+}
+loop();
+</script></body></html>
