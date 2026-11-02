@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Comfortable pavilion — Кодекс v2.5</title>
+<title>Comfortable pavilion — Кодекс v2.6</title>
 <style>
-:root{--g:linear-gradient(110deg,#fff3b0,#f5c542 28%,#c8921a 55%,#ffe27a 80%,#b8860b);--gold:#f5c542;--cyan:#00f0ff;--dim:#9a8f6d;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color-scheme:dark}
+:root{--g:linear-gradient(110deg,#fff3b0,#f5c542 28%,#c8921a 55%,#ffe27a 80%,#b8860b);--gold:#f5c542;--dim:#9a8f6d;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color-scheme:dark}
 *{box-sizing:border-box;margin:0}
 html{background:#050508;scroll-behavior:smooth;scroll-padding-top:104px}
 body{color:#ece6d2;font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden}
-/* ЗАМЕНА SVG НА CANVAS */
+/* NEURAL BG */
 #neural-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;opacity:.35;pointer-events:none}
 header{position:relative;min-height:94vh;display:grid;place-items:center;text-align:center;padding:50px 16px 70px}
 .hc{position:relative;z-index:2}
@@ -23,16 +23,16 @@ h1{font-size:clamp(2.5rem,10vw,5.8rem);line-height:1.03;font-weight:800;letter-s
 .st span{font-size:.8rem;color:var(--dim)}
 .dn{position:absolute;bottom:22px;color:var(--gold);text-decoration:none;font-size:1.7rem;animation:bn 1.6s ease-in-out infinite;z-index:2}
 @keyframes bn{50%{translate:0 9px}}
-/* НАВИГАЦИЯ И ПОИСК */
+/* NAV & SEARCH */
 #bar{position:sticky;top:0;z-index:5;background:#0a0a0ed0;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid #f5c54222;padding:10px 14px 9px}
 .in{display:flex;gap:10px;align-items:center;max-width:860px;margin:auto}
 label{flex:1;display:flex;align-items:center;gap:8px;border:1px solid #f5c54233;border-radius:10px;padding:6px 12px;background:#000;transition:.25s}
-label:focus-within{border-color:var(--cyan);box-shadow:0 0 22px #00f0ff33} /* CYAN FOCUS */
+label:focus-within{border-color:var(--gold);box-shadow:0 0 22px #f5c54233} /* GOLD FOCUS ONLY */
 label span{color:var(--gold);font:.85rem var(--mono)}label span:after{content:" ▸"}
 #q{flex:1;min-width:0;background:none;border:0;outline:0;color:#fff;font:.9rem var(--mono)}
 #k{font:normal .78rem var(--mono);color:var(--dim)}
-/* AI HINT BOX */
-.ai-hint{display:none;max-width:860px;margin:8px auto 0;padding:8px 12px;background:rgba(0,240,255,0.1);border-left:2px solid var(--cyan);font-family:var(--mono);font-size:.8rem;color:#aaffee;animation:fadeIn .3s}
+/* AI RESULT BOX - STRICT BLACK/GOLD */
+.ai-hint{display:none;max-width:860px;margin:8px auto 0;padding:12px 16px;background:#000;border:1px solid var(--gold);border-left:4px solid var(--gold);font-family:var(--mono);font-size:.85rem;color:#ffd866;animation:fadeIn .3s;line-height:1.5}
 .ai-hint.show{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
 #ch{display:flex;gap:6px;overflow-x:auto;max-width:860px;margin:8px auto 0;scrollbar-width:none;padding-bottom:2px}
@@ -66,7 +66,6 @@ footer i{color:var(--gold);font-style:normal;animation:bk 1s step-end infinite}
 @media(max-width:560px){.c{padding:14px 14px 14px 68px}.n{left:6px}.l1{margin-left:12px}.l2{margin-left:24px}.st div{padding:8px 16px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.r{opacity:1;translate:none}.pr span{width:auto;border:0}}
 </style></head><body>
-<!-- NEURAL NETWORK BACKGROUND -->
 <canvas id="neural-bg"></canvas>
 <header>
 <div class="hc">
@@ -176,7 +175,6 @@ const D=`#I|ОБЩИЕ ПОЛОЖЕНИЯ
 68|Решения суда, админов , влд и кого бы то ни было также могут быть обсуждаемыми но без ненависти и прочего.
 69|в стрессовых или конфликтных ситуациях при нарушении кодекса субъектом X, субъект Y считается невиновным если все что он делал это бурно выражал эмоции. Субъект Y имеет полное право отстаивать свои права , но обязан тегнуть влд ( или написать ему в ЛС ) и не нарушать правила кодекса за которые может получить наказание
 70|Субъект Y не будет спасен если его действия выходят за рамки обычных отстаиваний границ или эмоций.`;
-
 /* СБОРКА ДОКУМЕНТА */
 const mk=s=>s.replace(/(^|[^а-яё])(варн|бан|мут)(?![а-яё])/gi,(m,p,w)=>`${p}<mark class="${/^б/i.test(w)?'ban':/^м/i.test(w)?'mu':'wn'}">${w}</mark>`);
 let h='',chips='',np=0,n=0;
@@ -203,12 +201,12 @@ const CH=$('#ch'),so=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersec
 $$('section').forEach(s=>so.observe(s));
 addEventListener('scroll',()=>{$('#pg').style.transform=`scaleX(${scrollY/(document.documentElement.scrollHeight-innerHeight)||0})`},{passive:true});
 
-/* УМНЫЙ ПОИСК (STRICT GOLD STYLE) */
+/* УМНЫЙ ПОИСК (FILTER MODE) */
 const TRIGGERS = {
   insult: ["оскорб","хамств","груб","мат","ругань","обзыв","послал","еблан","козел","говнюк","сюаскорб"], 
   bullying: ["травл","булл","гонят","задир","издев","травли"],
   porn: ["порн","секс","ню","гол","эрот","возбуд","похаб"],
-  spam: ["спам","реклам","бот","накрут","массов"],
+  spam: ["спам","реклам","бот","накрут","массов","жалоб"], // Добавил "жалоб" сюда для связи со ст.50
   phish: ["фишинг","кража акк","парол","доступ","взлом"],
   dox: ["слив дан","дедокс","личные дан","адрес","телефон","фото пасп"],
   drug: ["наркот","трава","спайс","синтет","доза","употреб"],
@@ -219,7 +217,7 @@ const MAP_TO_ARTICLES = {
   insult: ['40'],
   bullying: ['41'],
   porn: ['42','42.1'],
-  spam: ['45','47','50'], // Добавил 50 (накрутку жалоб) сюда же логично
+  spam: ['45','47','50'], 
   phish: ['46'],
   dox: ['48'],
   drug: ['44'],
@@ -231,49 +229,55 @@ Q.oninput=()=>{
   const raw=Q.value.trim();
   const low=raw.toLowerCase();
   
-  // 1. Фильтр видимости
-  let c=0;
-  $$('.c').forEach(e=>{
-    const m=!low||e.textContent.toLowerCase().includes(low);
-    e.hidden=!m;c+=m;
-  });
-  $$('section').forEach(s=>s.hidden=!s.querySelector('.c:not([hidden])'));
-  K.textContent=low?c+'/'+n:'';
-
-  // 2. AI Анализ (Gold Style, No Emojis)
-  AIR.classList.remove('show');
-  if(low.length > 5) {
-    let foundCats = [];
+  // 1. Проверка на наличие нарушений (Keyword Matching)
+  let detectedCategories = [];
+  let allowedArticles = new Set();
+  
+  if(low.length > 3) {
     for(let cat in TRIGGERS) {
-      if(TRIGGERS[cat].some(word => low.includes(word))) foundCats.push(cat);
-    }
-    
-    if(foundCats.length > 0) {
-      let artsSet = new Set();
-      foundCats.forEach(c => (MAP_TO_ARTICLES[c]||[]).forEach(a => artsSet.add(a)));
-      
-      // Строгий формат вывода
-      AIR.innerHTML = `[анализ нарушений]<br>Обнаружено вероятное нарушение.<br>Категория: <u>${foundCats.join(', ')}</u>.<br>Рекомендуемые статьи: <b style="color:var(--gold)">${Array.from(artsSet).join(', ')}</b>.`;
-      AIR.classList.add('show');
-      
-      // Плавный поиск первой статьи БЕЗ резкого скачка окна
-      const firstArtNum = Array.from(artsSet)[0];
-      const targetCard = document.querySelector(`.c[data-num="${firstArtNum}"]`);
-      if(targetCard) {
-         // Подсветка золотым свечением
-         targetCard.style.boxShadow = "0 0 25px rgba(245, 197, 66, 0.5)";
-         targetCard.style.borderColor = "var(--gold)";
-         
-         // Мягкий скролл (если элемент сильно ниже экрана)
-         setTimeout(() => {
-             targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-             setTimeout(() => {
-                 targetCard.style.boxShadow = "";
-                 targetCard.style.borderColor = "#f5c54222"; // Вернуть дефолт
-             }, 2000);
-         }, 100);
+      if(TRIGGERS[cat].some(word => low.includes(word))) {
+        detectedCategories.push(cat);
+        (MAP_TO_ARTICLES[cat]||[]).forEach(a => allowedArticles.add(a));
       }
     }
+  }
+
+  // 2. Логика отображения
+  let visibleCount = 0;
+  
+  // Если нашли категории нарушений -> Фильтруем ЖЕСТКО (показываем только их)
+  // Если НЕ нашли -> Обычный текстовый поиск (показываем всё, где есть слово)
+  
+  $$('.c').forEach(card => {
+    const num = card.dataset.num;
+    const text = card.textContent.toLowerCase();
+    
+    let show = false;
+    
+    if(detectedCategories.length > 0) {
+      // Режим "Анти-нарушение": показываем только рекомендованные статьи
+      if(allowedArticles.has(num)) show = true;
+    } else {
+      // Стандартный режим:全文 поиск
+      if(!low || text.includes(low)) show = true;
+    }
+    
+    card.hidden = !show;
+    if(show) visibleCount++;
+  });
+
+  // Скрыть пустые секции
+  $$('section').forEach(sec => {
+    sec.hidden = !sec.querySelector('.c:not([hidden])');
+  });
+
+  K.textContent = low ? `${visibleCount}/${n}` : '';
+
+  // 3. Вывод результата анализа (Strict Gold Style)
+  AIR.classList.remove('show');
+  if(detectedCategories.length > 0) {
+    AIR.innerHTML = `[СИСТЕМНЫЙ АНАЛИЗ]<br>Обнаружено вероятное нарушение.<br>Категория: <u>${detectedCategories.join(', ')}</u>.<br>Отфильтровано статей: <b style="color:var(--gold)">${Array.from(allowedArticles).join(', ')}</b>.`;
+    AIR.classList.add('show');
   }
 };
 addEventListener('keydown',e=>{if(e.key=='/'&&document.activeElement!=Q){e.preventDefault();Q.focus()}});
