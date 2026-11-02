@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comfortable pavilion — Кодекс v2.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <!-- Background Effect -->
+  <canvas id="neural-net-canvas"></canvas>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="version-badge">SYSTEM ONLINE</div>
+    <h1 class="hero-title">Loading...</h1>
+    <p class="hero-subtitle">Загрузка протоколов...</p>
+    
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="search-query" placeholder="Поиск по кодексу или описание нарушения..." autocomplete="off">
+      </div>
+      <span class="ai-hint"></span>
+    </div>
+  </header>
+
+  <!-- Navigation -->
+  <nav class="nav-bar" style="position: sticky; top: 0; z-index: 100; background: rgba(5,5,5,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05);">
+    <div class="nav-chips container" style="max-width: 900px; margin: 0 auto; padding: 10px 1.5rem;"></div>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Rendered via JS -->
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Comfortable Pavilion. All rights reserved.</p>
+    <p>System Status: <span style="color:var(--secondary-cyan)">OPERATIONAL</span></p>
+  </footer>
+
+  <script src="./script.js"></script>
+</body>
+</html>
