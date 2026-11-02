@@ -176,6 +176,7 @@ const D=`#I|ОБЩИЕ ПОЛОЖЕНИЯ
 68|Решения суда, админов , влд и кого бы то ни было также могут быть обсуждаемыми но без ненависти и прочего.
 69|в стрессовых или конфликтных ситуациях при нарушении кодекса субъектом X, субъект Y считается невиновным если все что он делал это бурно выражал эмоции. Субъект Y имеет полное право отстаивать свои права , но обязан тегнуть влд ( или написать ему в ЛС ) и не нарушать правила кодекса за которые может получить наказание
 70|Субъект Y не будет спасен если его действия выходят за рамки обычных отстаиваний границ или эмоций.`;
+
 /* СБОРКА ДОКУМЕНТА */
 const mk=s=>s.replace(/(^|[^а-яё])(варн|бан|мут)(?![а-яё])/gi,(m,p,w)=>`${p}<mark class="${/^б/i.test(w)?'ban':/^м/i.test(w)?'mu':'wn'}">${w}</mark>`);
 let h='',chips='',np=0,n=0;
@@ -202,10 +203,9 @@ const CH=$('#ch'),so=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersec
 $$('section').forEach(s=>so.observe(s));
 addEventListener('scroll',()=>{$('#pg').style.transform=`scaleX(${scrollY/(document.documentElement.scrollHeight-innerHeight)||0})`},{passive:true});
 
-/* УМНЫЙ ПОИСК (AI HEURISTICS) */
-// Словарь триггеров. Ключ - категория, значение - список корней слов
+/* УМНЫЙ ПОИСК (STRICT GOLD STYLE) */
 const TRIGGERS = {
-  insult: ["оскорб","хамств","груб","мат","ругань","обзыв","послал","еблан","козел","говнюк","сюаскорб"], // добавил твои примеры
+  insult: ["оскорб","хамств","груб","мат","ругань","обзыв","послал","еблан","козел","говнюк","сюаскорб"], 
   bullying: ["травл","булл","гонят","задир","издев","травли"],
   porn: ["порн","секс","ню","гол","эрот","возбуд","похаб"],
   spam: ["спам","реклам","бот","накрут","массов"],
@@ -215,12 +215,11 @@ const TRIGGERS = {
   threat: ["угроз","шантаж","убью","найду","разберусь"]
 };
 
-// Карта категорий на номера статей
 const MAP_TO_ARTICLES = {
   insult: ['40'],
   bullying: ['41'],
   porn: ['42','42.1'],
-  spam: ['45','47'],
+  spam: ['45','47','50'], // Добавил 50 (накрутку жалоб) сюда же логично
   phish: ['46'],
   dox: ['48'],
   drug: ['44'],
@@ -232,7 +231,7 @@ Q.oninput=()=>{
   const raw=Q.value.trim();
   const low=raw.toLowerCase();
   
-  // 1. Обычный фильтр видимости
+  // 1. Фильтр видимости
   let c=0;
   $$('.c').forEach(e=>{
     const m=!low||e.textContent.toLowerCase().includes(low);
@@ -241,7 +240,7 @@ Q.oninput=()=>{
   $$('section').forEach(s=>s.hidden=!s.querySelector('.c:not([hidden])'));
   K.textContent=low?c+'/'+n:'';
 
-  // 2. AI Анализ (если длина больше 5 символов)
+  // 2. AI Анализ (Gold Style, No Emojis)
   AIR.classList.remove('show');
   if(low.length > 5) {
     let foundCats = [];
@@ -253,32 +252,40 @@ Q.oninput=()=>{
       let artsSet = new Set();
       foundCats.forEach(c => (MAP_TO_ARTICLES[c]||[]).forEach(a => artsSet.add(a)));
       
-      AIR.innerHTML = `<b style="color:var(--cyan)">🤖 СИСТЕМНЫЙ АНАЛИЗ:</b> Обнаружено вероятное нарушение.<br>
-                       Категория: <u>${foundCats.join(', ')}</u>.<br>
-                       Рекомендуемые статьи: <b style="color:var(--gold)">${Array.from(artsSet).join(', ')}</b>.`;
+      // Строгий формат вывода
+      AIR.innerHTML = `[анализ нарушений]<br>Обнаружено вероятное нарушение.<br>Категория: <u>${foundCats.join(', ')}</u>.<br>Рекомендуемые статьи: <b style="color:var(--gold)">${Array.from(artsSet).join(', ')}</b>.`;
       AIR.classList.add('show');
       
-      // Автоскролл к первой найденной статье, если она есть
+      // Плавный поиск первой статьи БЕЗ резкого скачка окна
       const firstArtNum = Array.from(artsSet)[0];
       const targetCard = document.querySelector(`.c[data-num="${firstArtNum}"]`);
       if(targetCard) {
-         targetCard.scrollIntoView({behavior:'smooth', block:'center'});
-         targetCard.style.boxShadow = "0 0 30px rgba(0,240,255,0.6)"; // Подсветка цианом
-         setTimeout(()=>targetCard.style.boxShadow="", 2000);
+         // Подсветка золотым свечением
+         targetCard.style.boxShadow = "0 0 25px rgba(245, 197, 66, 0.5)";
+         targetCard.style.borderColor = "var(--gold)";
+         
+         // Мягкий скролл (если элемент сильно ниже экрана)
+         setTimeout(() => {
+             targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+             setTimeout(() => {
+                 targetCard.style.boxShadow = "";
+                 targetCard.style.borderColor = "#f5c54222"; // Вернуть дефолт
+             }, 2000);
+         }, 100);
       }
     }
   }
 };
 addEventListener('keydown',e=>{if(e.key=='/'&&document.activeElement!=Q){e.preventDefault();Q.focus()}});
 
-/* TILT EFFECT (Карточки реагируют на мышь) */
+/* TILT EFFECT */
 if(matchMedia('(hover:hover)').matches){
   const M=$('#codex');
   M.addEventListener('pointermove',e=>{const c=e.target.closest('.c');if(!c)return;const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
     c.style.setProperty('--x',x+'px');c.style.setProperty('--y',y+'px');c.style.setProperty('--ry',(x/r.width-.5)*3+'deg');c.style.setProperty('--rx',(.5-y/r.height)*3+'deg')});
   M.addEventListener('mouseout',e=>{const c=e.target.closest('.c');if(c&&!c.contains(e.relatedTarget)){c.style.setProperty('--rx','0deg');c.style.setProperty('--ry','0deg')}})}
 
-/* NEURAL NETWORK BACKGROUND (Canvas Animation) */
+/* NEURAL NETWORK BACKGROUND */
 const cvs=document.getElementById('neural-bg');
 const ctx=cvs.getContext('2d');
 let W,H,NODES=[];
@@ -286,9 +293,7 @@ function resize(){W=cvs.width=innerWidth;H=cvs.height=innerHeight;}
 window.addEventListener('resize',resize);resize();
 
 class Node {
-  constructor() {
-    this.reset();
-  }
+  constructor() { this.reset(); }
   reset() {
     this.x=Math.random()*W;this.y=Math.random()*H;
     this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;
@@ -301,7 +306,7 @@ class Node {
   }
   draw() {
     ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
-    ctx.fillStyle='#f5c542'; // Gold nodes
+    ctx.fillStyle='#f5c542'; 
     ctx.fill();
   }
 }
@@ -310,7 +315,6 @@ for(let i=0;i<80;i++) NODES.push(new Node());
 
 function loop() {
   ctx.clearRect(0,0,W,H);
-  // Draw connections
   ctx.strokeStyle='rgba(245, 197, 66, 0.15)';
   ctx.lineWidth=1;
   for(let i=0;i<NODES.length;i++){
